@@ -10,7 +10,7 @@ import (
 
 func SBAC(linkUnit models.LinkUnit, ip string, record ip2location.IP2Locationrecord) (bool, error) {
 	countryCode := record.Country_short
-	fmt.Println(linkUnit)
+	fmt.Println(linkUnit, countryCode)
 	if linkUnit.Settings.Accessible_Countries.Active {
 		found := false
 		for _, val := range linkUnit.Settings.Accessible_Countries.Value {

@@ -47,5 +47,40 @@ func GetTargetLink(shortened_url_id string) (models.LinkUnit, error) {
 	}
 
 	return linkUnit, nil
+}
 
+func GetCompleteInfo(shortened_url_id string) (models.LinkUnit, error) {
+	filter := bson.M{
+		"shortened_url": shortened_url_id,
+	}
+	linkUnit := models.LinkUnit{}
+
+	err := db.Collections.LinkStore.FindOne(context.TODO(), filter).Decode(&linkUnit)
+
+	if err != nil {
+		fmt.Printf("Error in getting target link %v", err)
+		return models.LinkUnit{}, err
+	}
+
+	return linkUnit, nil
+}
+
+func UpdateSettings(shortened_url_id string, newSettings models.Settings) error {
+	filter := bson.M{
+		"shortened_url": shortened_url_id,
+	}
+	update := bson.M{
+		"$set": bson.M{
+			"settings": newSettings,
+		},
+	}
+
+	result, err := db.Collections.LinkStore.UpdateOne(context.TODO(), filter, update)
+	fmt.Println(result)
+	if err != nil {
+		fmt.Printf("Error in getting target link %v", err)
+		return err
+	}
+
+	return nil
 }

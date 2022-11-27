@@ -23,6 +23,8 @@ func SetupRouter() *gin.Engine {
 	linkStoreController := controllers.NewLinksController()
 
 	router.POST("/generate", linkStoreController.Generate)
+	router.GET("/getInfo/:id", linkStoreController.GetInfo)
+	router.PUT("/settings/:id", linkStoreController.UpdateSettings)
 	router.GET("/:id", linkStoreController.GetTargetLink)
 
 	return router

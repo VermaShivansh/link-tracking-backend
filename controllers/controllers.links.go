@@ -6,20 +6,25 @@ import (
 
 	"github.com/ShivanshVerma-coder/link-tracking/db"
 	"github.com/ShivanshVerma-coder/link-tracking/helpers"
+	"github.com/ShivanshVerma-coder/link-tracking/models"
 	"github.com/ShivanshVerma-coder/link-tracking/repository"
 	"github.com/gin-gonic/gin"
 	gonanoid "github.com/matoous/go-nanoid/v2"
 )
 
 type LinksController struct {
-	Generate      gin.HandlerFunc
-	GetTargetLink gin.HandlerFunc
+	Generate       gin.HandlerFunc
+	GetTargetLink  gin.HandlerFunc
+	GetInfo        gin.HandlerFunc
+	UpdateSettings gin.HandlerFunc
 }
 
 func NewLinksController() *LinksController {
 	linksController := &LinksController{}
 	linksController.Generate = generate
 	linksController.GetTargetLink = getTargetLink
+	linksController.GetInfo = getInfo
+	linksController.UpdateSettings = updateSettings
 
 	return linksController
 }
@@ -80,10 +85,40 @@ func getTargetLink(c *gin.Context) {
 	fmt.Println("Authorized. Sending Response...")
 
 	// helpers.SendResponse(c, http.StatusOK, "Target link found", map[string]interface{}{"target_url": linkUnit.Target_url})
-	c.Redirect(http.StatusMovedPermanently, linkUnit.Target_url)
+	c.Redirect(http.StatusTemporaryRedirect, linkUnit.Target_url)
 
 	// update analytics in go routine
 	go func() {
 		repository.UpdateAnalytics(linkUnit, record.Country_short)
 	}()
+}
+
+func getInfo(c *gin.Context) {
+	id, _ := c.Params.Get("id")
+	linkUnit, err := repository.GetCompleteInfo(id)
+	if err != nil {
+		helpers.SendResponse(c, http.StatusBadRequest, "Error in fetch information related to link", nil)
+		return
+	}
+
+	helpers.SendResponse(c, http.StatusOK, "Successfully fetched data related to link", linkUnit)
+}
+
+func updateSettings(c *gin.Context) {
+	id, _ := c.Params.Get("id")
+	newSettings := models.Settings{}
+
+	if err := c.ShouldBindJSON(&newSettings); err != nil {
+		helpers.SendResponse(c, http.StatusUnprocessableEntity, "Check request body", nil)
+		return
+	}
+
+	fmt.Println(newSettings)
+	err := repository.UpdateSettings(id, newSettings)
+	if err != nil {
+		helpers.SendResponse(c, http.StatusBadRequest, "Error in fetch information related to link", nil)
+		return
+	}
+
+	helpers.SendResponse(c, http.StatusOK, "Settings updated for link", nil)
 }
