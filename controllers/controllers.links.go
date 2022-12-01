@@ -106,15 +106,15 @@ func getInfo(c *gin.Context) {
 
 func updateSettings(c *gin.Context) {
 	id, _ := c.Params.Get("id")
-	newSettings := models.Settings{}
+	newLinkUnit := models.LinkUnit{}
 
-	if err := c.ShouldBindJSON(&newSettings); err != nil {
+	if err := c.ShouldBindJSON(&newLinkUnit); err != nil {
 		helpers.SendResponse(c, http.StatusUnprocessableEntity, "Check request body", nil)
 		return
 	}
 
-	fmt.Println(newSettings)
-	err := repository.UpdateSettings(id, newSettings)
+	fmt.Println(newLinkUnit)
+	err := repository.UpdateSettings(id, newLinkUnit)
 	if err != nil {
 		helpers.SendResponse(c, http.StatusBadRequest, "Error in fetch information related to link", nil)
 		return

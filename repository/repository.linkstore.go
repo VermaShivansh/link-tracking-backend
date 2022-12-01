@@ -65,13 +65,14 @@ func GetCompleteInfo(shortened_url_id string) (models.LinkUnit, error) {
 	return linkUnit, nil
 }
 
-func UpdateSettings(shortened_url_id string, newSettings models.Settings) error {
+func UpdateSettings(shortened_url_id string, newLinkUnit models.LinkUnit) error {
 	filter := bson.M{
 		"shortened_url": shortened_url_id,
 	}
 	update := bson.M{
 		"$set": bson.M{
-			"settings": newSettings,
+			"settings":   newLinkUnit.Settings,
+			"target_url": newLinkUnit.Target_url,
 		},
 	}
 
